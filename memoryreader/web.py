@@ -1,10 +1,12 @@
 from memoryreader import app
-from memoryreader.libraries import spiutils
 import flask
 
 # Web routes
-@app.route('/')
-@app.route('/index.html')
-def index():
- return flask.render_template('index.html')
+@app.route('/spi.html')
+def spi():
+ return flask.render_template('spi.html')
+
+@app.route('/i2c.html')
+def i2c():
+ return flask.render_template('i2c.html')
 

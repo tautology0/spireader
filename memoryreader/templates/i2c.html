@@ -1,0 +1,73 @@
+<html>
+<head>
+	<title>Test i2c chip read</title>
+</head>
+<script>
+
+server="/api/i2c/";
+
+function updatethings(chip)
+{
+	var statusline=document.getElementById("statusline");
+	statusline.innerText="Reading stuff";
+	var results=document.getElementById("results");
+        if (chip.readdata)
+	{
+		a = document.createElement("a");
+		a.href = window.URL.createObjectURL(chip.readdata);
+		a.download = "data.bin";
+		results.appendChild(a);
+		a.click();
+		a.remove();
+	}
+}
+
+function readit()
+{
+	chip={}
+	statusline=document.getElementById("statusline");
+	statusline.innerText="Identifying Chip";
+	sizefield=document.getElementById("memorysize");
+	size=sizefield.value;	
+
+	var xhttp = new XMLHttpRequest();
+	var offset=0;
+	var data="";
+	var baseurl = server + "read/";
+
+	var percent=document.getElementById("percent");
+	percent.innerText="0%";
+	urls=[];
+
+	var url=baseurl + offset + "/" + (size)
+	urls.push(url);
+
+	//  Now use JS async shiteness
+	var curpercent=0;
+	var percentincrease=100/urls.length;
+	var promises = urls.map(url => fetch(url).then(y => {
+		curpercent+=percentincrease;
+		percent.value=Math.floor(curpercent);
+		return y.blob()
+	}));
+	Promise.all(promises).then(results => {
+		percent.value=100;
+		chip.readdata=new Blob(results, {type: "application/octet-stream"});
+		updatethings(chip);
+	});
+}	
+
+</script>
+<body>
+<h1>I2C Chip Reader</h1>
+<div id="status">
+	<p id="statusline"></p>
+	<progress id="percent" max="80" value="0"></progress>
+</div>
+<div id="results" style="display:hidden"></div>
+<p></p>
+<p>Memory size: <input id="memorysize" type="text" value="4096" /></p>
+<input type="Button" value="Read It" onclick="readit()" />
+</body>
+</html>
+	
