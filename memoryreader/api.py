@@ -1,6 +1,7 @@
 from memoryreader import app
 from memoryreader.libraries import spiutils
 from memoryreader.libraries import i2cutils
+from memoryreader.libraries import epromutils
 from flask import Response
 
 # API routes
@@ -20,3 +21,9 @@ def spireadmem(start, end):
 def i2creadmem(start, end):
  i2cutils.init("1")
  return Response(i2cutils.readmemory(start,end), status=200, mimetype='application/octet-stream')
+
+# EPROM
+@app.route('/api/eprom/read/<int:start>/<int:end>')
+def epromreadmem(start, end):
+ epromutils.init()
+ return Response(epromutils.readmemory(start,end), status=200, mimetype='application/octet-stream')
