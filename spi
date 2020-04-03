@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from periphery import SPI
 import binascii
@@ -6,6 +6,9 @@ import hexdump
 import sys
 import binascii
 import ast
+import readline
+import os
+import atexit
 
 def sendit(request,resplen):
  # Padding for response data
@@ -78,7 +81,7 @@ def RAW(data, length):
 
  # address is 3 bytes
  d=sendit(request, length)
- print request
+ print(request)
 
  return ''.join(chr(x) for x in d)
 
@@ -97,32 +100,44 @@ def PP(address, data):
 
 spi=SPI("/dev/spidev0.0", 0, 1000000)
 
+# history file
+histfile = os.path.join(os.path.expanduser("~"), ".spi_history")
+try:
+ readline.read_history_file(histfile)
+except FileNotFoundError:
+ pass
+
+atexit.register(readline.write_history_file, histfile)
+
+# command line completion
+readline.parse_and_bind("tab: complete")
+
 while True:
- line=raw_input("SPI> ")
+ line=input("SPI> ")
  commands=line.split(" ")
  if commands[0] == "help":
-  print "Commands: RDID REMS RES RDSCUR RDST READ"
+  print("Commands: RDID REMS RES RDSCUR RDST READ")
  elif commands[0] == "quit" or commands[0] == "exit":
   exit()
  elif commands[0] == "rdid":
-  print RDID()
+  print(RDID())
  elif commands[0] == "rems":
-  print REMS()
+  print(REMS())
  elif commands[0] == "res":
-  print RES()
+  print(RES())
  elif commands[0] == "rdscur":
-  print RDSCUR()
+  print(RDSCUR())
  elif commands[0] == "rdsr":
-  print RDSR()
+  print(RDSR())
  elif commands[0] == "read":
-  addr=long(commands[1],0)
-  size=long(commands[2],0)
+  addr=int(commands[1],0)
+  size=int(commands[2],0)
   d=READ(addr,size)
   print("READ %3x for %d bytes" % (addr,size))
-  hexdump.hexdump(d)
+  hexdump.hexdump(bytes(d, encoding="utf-8"))
  elif commands[0] == "raw":
   data=ast.literal_eval(commands[1])
-  print data
+  print(data)
   size=long(commands[2],0)
   d=RAW(data,size)
   print("RAW %d bytes" % (size))
