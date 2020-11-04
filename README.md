@@ -3,7 +3,7 @@ pre-pre-pre-alpha for a web based spireader designed for a Pi, but should work o
 
 To start, run start.py which will run flask on 5000/tcp.
 
-To automatically grab the whole chip (similar to flashrom) go to the root page and click "readit".
+To automatically grab the whole chip (similar to flashrom) go to the root page (http://127.0.0.1:5000/spi.html) and click "read it".
 
 For the api:
 * /api/spi/identify, returns a JSON containing the dump of the JEDEC identification of the chip, after a bit of mangulation (e.g. attempt to translate the manufacturer and to return the real capacity instead of the power). Continuation codes haven't been tested yet.
